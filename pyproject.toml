@@ -1,0 +1,9 @@
+[project]
+name = "support-ticket-classifier"
+version = "1.0.0"
+description = "Category and priority classification for English and German support tickets"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
