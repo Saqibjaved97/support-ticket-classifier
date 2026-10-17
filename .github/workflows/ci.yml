@@ -1,0 +1,24 @@
+   name: ci
+   on: [push, pull_request]
+   jobs:
+     test:
+       runs-on: ubuntu-latest
+       steps:
+         - uses: actions/checkout@v4
+         - uses: actions/setup-python@v5
+           with:
+             python-version: "3.11"
+         - run: pip install -r requirements-dev.txt
+         - run: pytest -q
+     docker:
+       needs: test
+       runs-on: ubuntu-latest
+       steps:
+         - uses: actions/checkout@v4
+         - run: docker build -t ticket-classifier .
+         - name: smoke test
+           run: |
+             docker run -d -p 8000:8000 --name api ticket-classifier
+             for i in $(seq 1 30); do curl -sf localhost:8000/health && break; sleep 1; done
+             curl -sf -X POST localhost:8000/predict -H "Content-Type: application/json" \
+                  -d '{"text": "Mein Laptop geht nicht mehr an"}'
